@@ -1,4 +1,4 @@
-public class Inicjalization {
+public class GraphDrawer {
 
     public static void main(String[] args)
     {

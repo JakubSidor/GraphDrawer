@@ -2,9 +2,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class Config
 {
@@ -41,14 +41,22 @@ public class Config
     //checks some informations from system such a operating system
     public static void readSystemProperties()
     {
+        CONFIG_DATA.put("OS", System.getProperty("os.name").toUpperCase(Locale.ROOT) );
 
+        switch (Config.getProperty("OS"))
+        {
+            case "MAC OS X":
+                //System.setProperty("apple.laf.useScreenMenuBar", "true");
+                break;
+            case "WINDOWS":
+                break;
+        }
     }
 
     //return specified name property from CONFIG_DATA
     public static String getProperty(String propertyName)
     {
-        String property = CONFIG_DATA.get(propertyName);
-        return property;
+        return CONFIG_DATA.get(propertyName);
     }
 
 }

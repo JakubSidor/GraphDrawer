@@ -2,9 +2,19 @@ import java.awt.*;
 
 public abstract class Pattern
 {
+    public Pattern(Dynamic dynamic)
+    {
+        this.dynamic = dynamic;
+    }
     private int WIDTH = Integer.parseInt(Config.getProperty("WIDTH"));
     private boolean CROSS = Boolean.parseBoolean(Config.getProperty("CROSS"));
-    public Dynamic dynamic = Dynamic.Dynamic;
+    public Dynamic dynamic;
+    private boolean suspend = false;
+
+    public void setSuspend(boolean suspend)
+    {
+        this.suspend = suspend;
+    }
 
     public void draw(Graphics g)
     {
@@ -39,7 +49,10 @@ public abstract class Pattern
                         pattern(i + 1)
                 );
             }
-            actual++;
+
+            if(!suspend) {
+                actual++;
+            }
         }
 
 

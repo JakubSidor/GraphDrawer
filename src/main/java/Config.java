@@ -9,7 +9,7 @@ import java.util.Locale;
 public class Config
 {
     //path to configuration file
-    private static final String PATH = "/Users/jakubsidor/Downloads/GraphDrawer/out/production/GraphDrawer/config.ini";
+    private static final String PATH = "/Users/jakubsidor/Downloads/GraphDrawer/src/main/java/config.ini";
 
     //contain all configuration data in pairs(NAME:PROPERTY)
     private static final HashMap<String, String> CONFIG_DATA = new HashMap<>();

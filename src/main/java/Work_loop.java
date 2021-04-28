@@ -15,7 +15,7 @@ public class Work_loop
         {
             window.render();
             try {
-                Thread.sleep(2);
+                Thread.sleep(1);
             }
             catch (Exception ex)
             {

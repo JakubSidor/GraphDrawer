@@ -3,10 +3,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
-import java.net.http.WebSocket;
 import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.Optional;
+
 
 public class Window extends JFrame {
 
@@ -22,11 +20,15 @@ public class Window extends JFrame {
         renderer = new Render();
 
         add(renderer);
+        for(double d = 0; d<5; d+=0.5) {
+            patterns.add(Prefabs.constructPrefab((d)+"*x", Color.ORANGE, Pattern.Dynamic.Dynamic));
+        }
 
         patterns.add( new Pattern(Pattern.Dynamic.Dynamic, Color.GREEN)
         {
             @Override
-            public int pattern(int x) {
+            public int pattern(int x)
+            {
                 return (int) ((Math.cos(x * 0.05) * 60) + 360) ;
             }
         });

@@ -4,13 +4,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.net.http.WebSocket;
+import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.Optional;
 
 public class Window extends JFrame {
 
     private Render renderer;
-    private Pattern pattern;
+    private ArrayList<Pattern> patterns = new ArrayList<>();
     private final int border_size = 35;
 
     public Window()
@@ -22,15 +23,33 @@ public class Window extends JFrame {
 
         add(renderer);
 
+        patterns.add( new Pattern(Pattern.Dynamic.Dynamic, Color.GREEN)
+        {
+            @Override
+            public int pattern(int x) {
+                return (int) ((Math.cos(x * 0.05) * 60) + 360) ;
+            }
+        });
 
-
-        pattern = new Pattern(Pattern.Dynamic.Dynamic)
+        patterns.add( new Pattern(Pattern.Dynamic.Dynamic)
         {
             @Override
             public int pattern(int x) {
                 return x;
             }
-        };
+        });
+
+        patterns.add( new Pattern(Pattern.Dynamic.Dynamic, Color.BLUE)
+        {
+            @Override
+            public int pattern(int x) {
+                return (int) ((x-360)*(x-300)*(x-450) * 0.00028) + 360;
+            }
+        });
+
+
+
+
         setVisible(true);
     }
 
@@ -44,7 +63,6 @@ public class Window extends JFrame {
                 Integer.parseInt(Config.getProperty("HEIGHT"))
         );
 
-        System.out.println(Config.getProperty("OS"));
         if(Config.getProperty("OS").equals("MAC OS X"))
         {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -56,7 +74,9 @@ public class Window extends JFrame {
     //Creates and adds JMenu component
     public void createMenu()
     {
+
         JMenuBar jMenuBar = new JMenuBar();
+
 
         //FILE
         {
@@ -77,13 +97,31 @@ public class Window extends JFrame {
             jMenuBar.add(jMenuPref);
 
         }
+        //PATTERNS
+        {
+            JMenu jMenuPatt = new JMenu("Patterns");
+            JMenuItem jMIPatt = new JMenuItem("Add");
+            jMenuPatt.add(jMIPatt);
+
+            jMenuBar.add(jMenuPatt);
+        }
 
         //If mouse enters menu it stops dynamic drawing(freeze graph) until user exit menu
         MouseListener stopDynamic = new MouseListener()
         {
+            boolean suspend = false;
+            //Switch state of "suspend" for every pattern from ArrayList "patterns"
+            Pattern.ForEveryPattern fep = (patterns -> {
+                for (Pattern p : patterns)
+                {
+                    p.setSuspend(suspend);
+                }
+            });
+
             @Override
             public void mouseClicked(MouseEvent e) {
-                pattern.setSuspend(false);
+                suspend = false;
+                fep.forEveryPattern(patterns);
             }
 
             @Override
@@ -94,32 +132,30 @@ public class Window extends JFrame {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                pattern.setSuspend(true);
+                suspend = true;
+                fep.forEveryPattern(patterns);
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                pattern.setSuspend(false);
+                suspend = false;
+                fep.forEveryPattern(patterns);
             }
         };
 
-        //Adds MouseListener to all objects in jMenuBar
-        {
-            AddListnerToAllChildren(jMenuBar, stopDynamic);
-        }
+        AddListnerToAllChildren(jMenuBar, stopDynamic);
 
         setJMenuBar(jMenuBar);
-
-
     }
 
+    //Recursively adds MouseListener to passed JComponent and its children
     public void AddListnerToAllChildren(JComponent component, MouseListener listener)
     {
         component.addMouseListener(listener);
-        System.out.println(component.getComponents().length);
         for (Component c : component.getComponents())
         {
             JComponent jc = null;
+
             if(c instanceof JComponent)
             {
                 jc = (JComponent)c;
@@ -127,7 +163,8 @@ public class Window extends JFrame {
 
             if(c instanceof JMenu)
             {
-                for (Component jcmc : ((JMenu) c).getMenuComponents() ){
+                for (Component jcmc : ((JMenu) c).getMenuComponents())
+                {
                     AddListnerToAllChildren((JComponent) jcmc, listener);
                 }
             }
@@ -161,12 +198,21 @@ public class Window extends JFrame {
                 return;
             }
 
+
+
             Graphics graphics = bs.getDrawGraphics();
+
+            Pattern.ForEveryPattern fep = (patterns -> {
+                for (Pattern p : patterns)
+                {
+                    p.draw(graphics);
+                }
+            });
 
             graphics.setColor(Color.DARK_GRAY);
             graphics.fillRect(0, 0, getSize().width, getSize().height);
 
-            pattern.draw(graphics);
+            fep.forEveryPattern(patterns);
 
             graphics.dispose();
             bs.show();
